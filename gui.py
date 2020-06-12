@@ -56,10 +56,13 @@ def display_number(text, row, col):
     TextRect.center = ((row*CellSize)+NumberSize+(NumberSize//2), (col*CellSize)+NumberSize+((int(NumberSize//1.5))))
     screen.blit(TextSurf, TextRect)
 
-    pygame.display.update()
+    #pygame.display.update()
 
 def initialize_board(board):
-    display_number(str(board[0][0]), 0, 0)
+    for i in range(0, 9):
+        for j in range (0, 9):
+            if board[i][j] != 0:
+                display_number(str(board[i][j]), i, j)
 
 #Main
 def main():
