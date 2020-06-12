@@ -9,12 +9,13 @@ White = (255, 255, 255)
 LightGray = (200, 200, 200)
 
 # Set size of grid
-WindowMultiplier = 5 # Change this number to change the window size
+WindowMultiplier = 15 # Change this number to change the window size
 WindowSize = 90
 WindowWidth = WindowSize * WindowMultiplier
 WindowHeight = WindowSize * WindowMultiplier
 SquareSize = (WindowSize * WindowMultiplier) // 3
 CellSize = SquareSize // 3
+NumberSize = CellSize // 3
 
 board = [
         [7, 8, 0, 4, 0, 0, 1, 2, 0],
@@ -45,14 +46,30 @@ def drawGrid(screen):
 
     return None
 
+def text_objects(text, font):
+    textSurface = font.render(text, True, Black)
+    return textSurface, textSurface.get_rect()
+
+def display_number(text, row, col):
+    largeText = pygame.font.SysFont("comicsans", WindowWidth//9)
+    TextSurf, TextRect = text_objects(text, largeText)
+    TextRect.center = ((row*CellSize)+NumberSize+(NumberSize//2), (col*CellSize)+NumberSize+((int(NumberSize//1.5))))
+    screen.blit(TextSurf, TextRect)
+
+    pygame.display.update()
+
+def initialize_board(board):
+    display_number(str(board[0][0]), 0, 0)
+
 #Main
 def main():
-    # global FPSCLOCK, screen
+    global FPSCLOCK, screen
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     screen = pygame.display.set_mode((WindowWidth, WindowHeight))
     pygame.display.set_caption("Sudoku")
     screen.fill(White)
+    initialize_board(board)
     drawGrid(screen)
 
     # Game Loop
