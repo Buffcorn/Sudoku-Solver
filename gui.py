@@ -1,4 +1,5 @@
 import pygame
+import time
 from solver import solve, valid, print_board
 
 # Number of frames per second
@@ -8,6 +9,8 @@ FPS = 10
 Black = (0, 0, 0)
 White = (255, 255, 255)
 LightGray = (200, 200, 200)
+Blue = (0, 0, 255)
+Red = (255, 0 , 0)
 
 # Set size of grid
 WindowMultiplier = 5 # Change this number to change the window size
@@ -20,6 +23,7 @@ NumberSize = CellSize // 3
 
 # Keep track of the solved and unsolved numbers
 Solved = {}
+Compare = {}
 Unsolved = set()
 
 board = [
@@ -68,16 +72,27 @@ def initialize_board(board):
     for i in range(0, 9):
         for j in range (0, 9):
             if board[i][j] != 0:
+                Solved[(i, j)] = board[i][j]
                 display_number(str(board[i][j]), (i, j))
             else:
                 Unsolved.add((i,j))
 
 # Draw Box when clicked
-def drawBox(mousex, mousey):
+def drawBox(mousex, mousey, Color):
     mousex = mousex//CellSize
     mousey = mousey//CellSize
-    pygame.draw.rect(screen, (0, 0, 255), (mousex*CellSize, mousey*CellSize, CellSize, CellSize), 2)
-    return (mousey, mousex)
+    if (mousey, mousex) not in Solved.keys():
+        redraw_window()
+        pygame.draw.rect(screen, Color, (mousex*CellSize, mousey*CellSize, CellSize, CellSize), 2)
+        return (mousey, mousex)
+
+
+# Redraw the Board
+def redraw_window():
+    screen.fill(White)
+    drawGrid(screen)
+    for key, value in Solved.items():
+        display_number(str(value), key)
     
 
 #Main
@@ -87,17 +102,15 @@ def main():
     FPSCLOCK = pygame.time.Clock()
     screen = pygame.display.set_mode((WindowWidth, WindowHeight))
     pygame.display.set_caption("Sudoku")
-    screen.fill(White)
+    redraw_window()
     initialize_board(board)
-    drawGrid(screen)
     solve(board)
     board_selected = None
     Key = None
 
-    # Save solution in a Dictionary
     for i in range(0, 9):
         for j in range(0, 9):
-            Solved[(i,j)] = board[i][j]
+            Compare[(i,j)] = board[i][j]
 
     # Game Loop
     running = True
@@ -108,13 +121,14 @@ def main():
                 running = False
 
             # Mouse movement commands
-            elif event.type == pygame.MOUSEMOTION:
-                MouseX, MouseY = event.pos
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 MouseX, MouseY = event.pos
                 MouseClicked = True
-            if event.type == pygame.KEYDOWN:
+                key = None
+            if event.type == pygame.KEYDOWN and board_selected:
+                redraw_window()
+                board_selected = drawBox(MouseX, MouseY, Blue)
                 if event.key == pygame.K_1:
                     key = 1
                 if event.key == pygame.K_2:
@@ -133,9 +147,24 @@ def main():
                     key = 8
                 if event.key == pygame.K_9:
                     key = 9
+                if event.key == pygame.K_RETURN:
+                    if board_selected != None and key != None:
+                        if board_selected in Compare.keys():
+                            if key == Compare[board_selected]:
+                                Solved[board_selected] = key
+                                redraw_window()
+                            else:
+                                redraw_window()
+                                board_selected = drawBox(MouseX, MouseY, (255, 0, 0))
+                                key = None
+                if event.key == pygame.K_BACKSPACE:
+                    if board_selected != None:
+                        key = None
+                        redraw_window()
+                        board_selected = drawBox(MouseX, MouseY, Blue)
 
         if MouseClicked == True:
-            board_selected = drawBox(MouseX, MouseY)
+            board_selected = drawBox(MouseX, MouseY, Blue)
             key = None
 
         if board_selected != None and key != None:
