@@ -26,6 +26,7 @@ Solved = {}
 Compare = {}
 Unsolved = set()
 
+# Edit this for a different sudoku board
 board = [
         [7, 8, 0, 4, 0, 0, 1, 2, 0],
         [6, 0, 0, 0, 7, 5, 0, 0, 9],
@@ -120,12 +121,13 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-            # Mouse movement commands
-
+            # Mouse click commands
             elif event.type == pygame.MOUSEBUTTONUP:
                 MouseX, MouseY = event.pos
                 MouseClicked = True
                 key = None
+                
+            # Keyboard Commands
             if event.type == pygame.KEYDOWN and board_selected:
                 redraw_window()
                 board_selected = drawBox(MouseX, MouseY, Blue)
@@ -162,7 +164,8 @@ def main():
                         key = None
                         redraw_window()
                         board_selected = drawBox(MouseX, MouseY, Blue)
-
+                        
+        # Check if the Mouse was clicked
         if MouseClicked == True:
             board_selected = drawBox(MouseX, MouseY, Blue)
             key = None
